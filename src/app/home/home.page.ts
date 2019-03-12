@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { Socket } from 'ng-socket-io';
+import * as io from 'socket.io-client';
 
 @Component({
   selector: 'app-home',
@@ -9,14 +9,47 @@ import { Socket } from 'ng-socket-io';
 })
 export class HomePage {
 
-  nickname = '';
+  socket:any
+  public myUserId: string;
+  chats = [];
+  chat_input:string;
 
-  constructor(public navCtrl: NavController, public socket: Socket) { }
+  constructor(public navCtrl: NavController) { 
 
-  joinChatRoom() {
-    this.socket.connect();
-    this.socket.emit('set-nickname', this.nickname);
-    this.navCtrl.push('ChattingPage', { nickname: this.nickname });
+    if(this.myUserId==null){
+      this.myUserId=Date.now().toString();
+   }
+
+   this.socket=io('http://localhost:3000');
   }
+
+  send(msg) {
+    if(msg!='') {
+     // Assign user typed message along with generated user id
+     let saltedMsg = this.myUserId + "#" + msg; 
+     // Push the message through socket 
+     this.socket.emit('message', saltedMsg);
+    }
+    this.chat_input='';
+  }
+
+  Receive(){
+    // Socket receiving method 
+    this.socket.on('message', (msg) => {
+      // separate the salted message with "#" tag 
+      let saletdMsgArr = msg.split('#');
+      var item= {};
+      // check the sender id and change the style class
+      if(saletdMsgArr[0] == this.myUserId){
+         item = { "styleClass":"chat-message right", "msgStr":saletdMsgArr[1] };
+      }
+      else{
+         item= { "styleClass":"chat-message left", "msgStr":saletdMsgArr[1] };
+      }
+      // push the bind object to array
+      // Final chats array will iterate in the view  
+      this.chats.push(item);
+    });
+ }
 
 }

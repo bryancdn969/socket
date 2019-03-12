@@ -1,15 +1,22 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-navbar>
     <ion-title>
-      Join chatroom
- 1   </ion-title>
-  </ion-toolbar>
+      <ion-iconmd="md-chatbubbles"></ion-icon> Chat Room
+    </ion-title>
+  </ion-navbar>
 </ion-header>
-
 <ion-content padding>
-  <ion-item>
-    <ion-label stacked>Set Nickname</ion-label>
-    <ion-input type="text" [(ngModel)]="nickname" placeholder="Nickname"></ion-input>
-  </ion-item>
-  <button ion-button full (click)="joinChatRoom()" [disabled]="nickname === ''">Join Chat Room {{ nickname }}</button>
+  <div *ngFor="let message of chats">    
+      <div [ngClass]="message.styleClass">      
+        <div class="message-detail">
+          {{message.msgStr}}
+        </div>
+      </div>
+  </div>
 </ion-content>
+<ion-footer>
+  <ion-item>
+    <ion-inputtype="text" [(ngModel)]="chat_input"placeholder="Enter message"></ion-input>
+    <ion-iconname="md-send" (click)="send(chat_input)"item-right></ion-icon>
+  </ion-item>
+</ion-footer>
